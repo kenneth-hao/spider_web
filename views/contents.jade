@@ -1,0 +1,30 @@
+p='总记录数: '
+  strong=contents.length
+input(type="hidden", value=keywords, id="keywords")
+p='关键词: '
+  strong=keywords
+  br
+  blockquote
+      footer='注意: 关键词列表只包含已出现在列表内容中的关键词.'
+p
+  a(href='export')='导出Excel'
+table(data-toggle="table", data-striped="true")
+  thead
+    tr
+      th(class='col-xs-8')='内容'
+      th(class='col-xs-2', data-align='center')='作者'
+      th(class='col-xs-2', data-align='center')='发表时间'
+  - each c in contents
+    tr
+      td
+        a(href=c.target_url, target='_blank', class='content')=c.content
+      td
+        a(href=c.author_url, target='_blank')=c.author
+      td
+        label=c.pub_time
+
+script.
+  (function($) {
+    var keywords = $('#keywords').val()
+    $('a.content').highlight(keywords, {separator: ','})
+  })(jQuery)
