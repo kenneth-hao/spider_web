@@ -1,27 +1,54 @@
 p='总记录数: '
-  strong=contents.length
+  strong=totalCount
 input(type="hidden", value=keywords, id="keywords")
-p='关键词: '
-  strong=keywords
-  br
-  blockquote
-      footer='注意: 关键词列表只包含已出现在列表内容中的关键词.'
 p
-  a(href='export')='导出Excel'
+  a(id='export', href='javascript:void(0);', class='btn btn-primary')='导出Excel'
+  script.
+      $('#export').click(function() {
+          location.href = '/export?addr=' + $('#addr').val()
+      });
+div
+    form(class="form-horizontal", action='/')
+        div(class='form-group')
+            label(class='col-sm-2 control-label')='作者注册地'
+            div(class='col-sm-2')
+                select(id='addr', class="form-control", name='addr')
+                    - if (query.addr || query.addr == '全国')
+                        option='全国'
+                    - else
+                        option(selected='selected')='全国'
+                    - if (query.addr == '上海')
+                        option(selected='selected')='上海'
+                    - else
+                        option='上海'
+                    - if (query.addr == '北京')
+                        option(selected='selected')='北京'
+                    - else
+                        option='北京'
+                    
+        div(class='form-group')
+            div(class='col-sm-offset-2 col-sm-2')
+                button(type="submit", class="btn btn-default")='查询'
+
+br
+
 table(data-toggle="table", data-striped="true")
   thead
     tr
       th(class='col-xs-8')='内容'
-      th(class='col-xs-2', data-align='center')='作者'
+      th(class='col-xs-1', data-align='center')='注册地'
+      th(class='col-xs-1', data-align='center')='作者'
       th(class='col-xs-2', data-align='center')='发表时间'
   - each c in contents
     tr
       td
         a(href=c.target_url, target='_blank', class='content')=c.content
       td
+        label=c.addr
+      td
         a(href=c.author_url, target='_blank')=c.author
       td
-        label=c.pub_time
+        label #{moment.utc(c.pub_time).format('YYYY-MM-DD HH:mm:ss')}
 
 script.
   (function($) {

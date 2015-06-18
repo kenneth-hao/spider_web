@@ -1,4 +1,5 @@
 var mongodb = require('./db')
+var moment = require('moment')
 
 function Content(content, target_url, author, author_url, pub_time, keyword, addr, key_level, attent_vehicle, floor) {
   this.content = content
@@ -27,7 +28,13 @@ Content.get = function(params, callback) {
         return callback(err)
       }
       var query = {}
-      collection.find(query).sort({pub_time: -1, key_level: 1}).toArray(function(err, docs) {
+      if (params.addr)
+        query.addr = {'$regex': params.addr}
+      limit = 0
+      if (params.pageSize)
+        limit = params.pageSize
+
+      collection.find(query).sort({pub_time: -1, key_level: 1}).limit(limit).toArray(function(err, docs) {
         mongodb.close()
         if (err) {
           callback(err, null)
@@ -35,7 +42,7 @@ Content.get = function(params, callback) {
 
         var contents = []
         docs.forEach(function(doc, index) {
-          var content = new Content(doc.content, doc.target_url, doc.author, doc.author_url, doc.pub_time, doc.keyword, doc.addr, doc.key_level, doc.attent_vehicle, doc.floor)
+          var content = new Content(doc.content, doc.target_url, doc.author, doc.author_url, doc.pub_time.toUTCString(), doc.keyword, doc.addr, doc.key_level, doc.attent_vehicle, doc.floor)
           contents.push(content)
         })
         callback(null, contents)
@@ -44,3 +51,4 @@ Content.get = function(params, callback) {
   }) 
 }
 
+// Thu Jun 11 2015 18:48:06 GMT+0800 (CST)

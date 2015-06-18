@@ -1,0 +1,88 @@
+{% extends 'layout.html' %}
+
+{% block title %}汽车之家爬取结果记录{% endblock %}
+
+{% block head %}
+  {% parent %}
+  <script type="text/javascript">
+    $(function() {
+      var keywords = $('#keywords').val();
+      $('a.content').highlight(keywords, {separator: ','});
+
+      $('#export').click(function() {
+          location.href = '/export?addr=' + $('#addr').val()
+      });
+
+      $('a.page').click(function(e) {
+        var $target = $(e.target);
+        var page = $target.text();
+        var query = $('form.query').serialize()
+
+        location.href = "/?" + query + "&page=" + page;
+      })
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <input type="hidden" value="{{ keywords }}" id="keywords" />
+    <p>
+      <label>总记录数: </label>
+      <strong>{{ totalCount }}</strong>
+    </p>
+    <p>
+      <a href="javascript:void(0);" id="export" class="btn btn-primary">导出Excel</a>
+    </p>
+    <form class="form-horizontal query", action="/">
+      <div class="form-group">
+        <label class="col-sm-2 control-label">作者注册地</label>
+        <div class="col-sm-2">
+          <select id="addr" name="addr" class="form-control">
+            <option value="全国" {% if query.addr=='全国' or query.addr=='' %}selected="selected"{% endif %}>全国</option>
+            <option value="北京" {% if query.addr=='北京' %}selected="selected"{% endif %}>北京</option>
+            <option value="上海" {% if query.addr=='上海' %}selected="selected"{% endif %}>上海</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-2">
+          <button type="submit" class="btn btn-default">查询{{ url }}</button>
+        </div>
+      </div>
+    </form>
+
+    <table data-toggle="table" data-striped="true">
+      <thead>
+        <th class="col-xs-8">内容</th>
+        <th class="col-xs-1">注册地</th>
+        <th class="col-xs-1">作者</th>
+        <th class="col-xs-2">发表时间</th>
+      </thead>
+      {% for c in contents %}
+        <tr>
+          <td>
+            <a href="{{ c.target_url }}" target="_blank" class="content">{{ c.content }}</a>
+          </td>
+          <td>{{ c.addr }}</td>
+          <td>
+            <a href="{{ c.author_url }}">{{ c.author }}</a>
+          </td>
+          <td>
+            {{ c.pub_time|date('Y-m-d H:i:s') }}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <nav>
+
+      <ul class="pagination">
+        {% for p in po.pages %}
+          <li {% if po.current_page == p %} class="disabled current_page" {% endif %}>
+            <a class="page" {% if po.current_page != p %} href="javascript:void(0);" {% endif %}>{{ p }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
